@@ -1,0 +1,57 @@
+services:
+  corerouter:
+    image: 'corerouter'
+    build:
+      context: ./corerouter
+      dockerfile: Dockerfile
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+      - SYS_ADMIN
+    volumes:
+      - ./corerouter:/setup:ro
+    sysctls:
+      - net.ipv4.ip_forward=1
+    command: "/bin/bash /setup/start.sh"
+    networks:
+      00-wan:       # eth0
+      10-lan:       # eth1
+  app:
+    image: 'webapp'
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+      - SYS_ADMIN
+    networks:
+      10-lan:       # eth0
+  inrouter:
+    image: 'corerouter'
+    build:
+      context: ./corerouter
+      dockerfile: Dockerfile
+    cap_add:
+      - NET_RAW
+      - NET_ADMIN
+      - SYS_ADMIN
+    volumes:
+      - ./inrouter:/setup:ro
+    sysctls:
+      - net.ipv4.ip_forward=1
+    command: "/bin/bash /setup/start.sh"
+    networks:
+      10-lan:       # eth1
+
+networks:
+  00-wan:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 10.10.0.0/24
+  10-lan:
+    driver: bridge
+    ipam:
+      config:
+      - subnet: 192.168.187.0/24
