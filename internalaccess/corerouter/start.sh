@@ -17,6 +17,8 @@ wanip=$(ip a show $waniface | grep 'inet ' | awk '{print $2}' | awk -F/ '{print 
 
 ip link add gretest type gre remote 0.0.0.0 local $wanip # 0.0.0.0 for allow any src ip
 ip link set gretest up
+ip link add ipiptest type ipip remote 0.0.0.0 local $wanip # 0.0.0.0 for allow any src ip
+ip link set ipiptest up
 
 iptables -t nat -A POSTROUTING -o $waniface -j MASQUERADE
 
